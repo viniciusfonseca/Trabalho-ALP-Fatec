@@ -1,32 +1,31 @@
 program prog1;
 
+{Cabecalho}
 
-{Cabe‡alho}
-
-{*** Defini‡ao de tipos. Aqui, 'date' ‚ um registro que armazena dia, mˆs
+{*** Definicao de tipos. Aqui, 'date' e um registro que armazena dia, mes
 e ano; ***}
 type date = record
 	d: integer;
 	m: integer;
 	a: integer;
 	end;
-func = record {Registro 'funcion rio'}
+func = record {Registro 'funcionario'}
 	cod: integer;
 	nome: string[30];
 	salario: real;
 	dt_adm: date;
 	end;
 
-{*** Declara‡ao de fun‡oes e procedimentos ***}
+{*** Declaracao de rotulos ***}
+label prox;
 
-
-{*** Declara‡ao das vari veis. ***}
+{*** Declaracao das variaveis. ***}
 var
-	func_t: func;
+	func_t: func; {Funcionario "intermediario" usado para entrada e validacao}
 	arq_func: file of func;
 	r: char;
 	dataStr: string[10];
-   
+
 	valid: boolean;
 	dia, mes, ano: integer;
 	biss: boolean;
@@ -40,58 +39,59 @@ begin
 
 {*** Entrada de dados ***}
     write('C¢digo do funcion rio: '); readln(func_t.cod);
-    if func_t.cod = 9999 then halt;
+    if func_t.cod = 9999 then begin Close(arq_func); halt; end;
     {Valida o c¢digo}
 	while (func_t.cod <> 9999) do
 	begin
 		while not(func_t.cod > 0) do
 		begin
-			write('C¢digo inv lido (menor ou igual a zero). Deseja redigitar o campo? s/n: '); read(r);
+			write('C¢digo invalido (menor ou igual a zero). Deseja redigitar o campo? s/n: '); read(r);
 			while (r <> 's') and (r <> 'S') and (r <> 'n') and (r <> 'N') do
 			begin
-				write('Resposta inv lida. Digite novamente: '); read(r);
+				write('Resposta invalida. Digite novamente: '); read(r);
 			end;
-			if (r = 'n') or (r = 'N') then halt;
-			write('C¢digo do funcion rio: '); readln(func_t.cod);
+			if (r = 'n') or (r = 'N') then goto prox;
+			write('C¢digo do funcionario: '); readln(func_t.cod);
 		end;
 
-		write('Nome do funcion rio: '); readln(func_t.nome);
+		write('Nome do funcionario: '); readln(func_t.nome);
 		{Valida o nome}
 		while not(func_t.nome[1] in ['A'..'Z']) do
 		begin
-			write('Nome inválido (primeira letra deve ser maiúscula). Deseja redigitar o campo? s/n: '); readln(r);
+			write('Nome invalido (primeira letra deve ser maiuscula). Deseja redigitar o campo? s/n: '); readln(r);
 			while (r <> 's') and (r <> 'S') and (r <> 'n') and (r <> 'N') do
 			begin
-				write('Resposta inv lida. Digite novamente: '); readln(r);
+				write('Resposta invalida. Digite novamente: '); readln(r);
 			end;
-			if (r = 'n') or (r = 'N') then halt;
-			write('Nome do funcion rio: '); readln(func_t.nome);
+			if (r = 'n') or (r = 'N') then goto prox;
+			write('Nome do funcionario: '); readln(func_t.nome);
 		end;
 
-		write('Sal rio: '); readln(func_t.salario);
+		write('Salario: '); readln(func_t.salario);
 		{Valida o salário}
 		while not(func_t.salario > 0) do
 		begin
-			write('Salário inválido. Deseja redigitar o campo? s/n: '); readln(r);
+			write('Salário invalido. Deseja redigitar o campo? s/n: '); readln(r);
 			while (r <> 's') and (r <> 'S') and (r <> 'n') and (r <> 'N') do
 			begin
-				write('Resposta inv lida. Digite novamente: '); read(r);
+				write('Resposta invalida. Digite novamente: '); read(r);
 			end;
-			if (r = 'n') or (r = 'N') then halt;
-			write('Sal rio: '); readln(func_t.salario);
+			if (r = 'n') or (r = 'N') then goto prox;
+			write('Salario: '); readln(func_t.salario);
 		end;
 
-		write('Data de admissao (dd/mm/aaaa): '); readln(dataStr);
+		write('Data de admissao (formato dd/mm/aaaa): '); readln(dataStr);
 		{Valida a data}
 		repeat
+            valid := true;
 			if not (dataStr[3] = '/') or not (dataStr[6] = '/') then valid := false
 			else
 			begin
 				{Converte a string para registro data de admissão do funcionário}
 				dia := 0; mes := 0; ano := 0;
-				dia := dia + Integer(dataStr[1])*10 + Integer(dataStr[2]); write(dia);
-				mes := mes + Integer(dataStr[4])*10 + Integer(dataStr[5]); write(mes);
-				ano := ano + Integer(dataStr[7])*1000 + Integer(dataStr[8])*100 + Integer(dataStr[9])*10 + Integer(dataStr[10]);
+				dia := dia + (Ord(dataStr[1])-48)*10 + (Ord(dataStr[2])-48); write(dia);
+				mes := mes + (Ord(dataStr[4])-48)*10 + (Ord(dataStr[5])-48); write(mes);
+				ano := ano + (Ord(dataStr[7])-48)*1000 + (Ord(dataStr[8])-48)*100 + (Ord(dataStr[9])-48)*10 + (Ord(dataStr[10])-48);
                                 write(ano);
 				if not (ano > 0) then valid := false
 				else
@@ -114,18 +114,30 @@ begin
 			end;
 			if not valid then
 			begin
-				write('A data informada não é válida. Deseja digitar novamente? s/n: '); readln(r);
+				write('A data informada nao e valida. Deseja digitar novamente? s/n: '); readln(r);
 				while (r <> 's') and (r <> 'S') and (r <> 'n') and (r <> 'N') do
 				begin
-					write('Resposta inv lida. Digite novamente: '); read(r);
+					write('Resposta invalida. Digite novamente: '); read(r);
 				end;
-				if (r = 'n') or (r = 'N') then halt;
-				write('Data de admissão: '); readln(dataStr);
-			end; 
+				if (r = 'n') or (r = 'N') then goto prox;
+				write('Data de admissao: '); readln(dataStr);
+			end;
 		until valid;
+		func_t.dt_adm.d := dia;
+		func_t.dt_adm.m := mes;
+		func_t.dt_adm.a := ano;
 		{Gravar os dados validados}
-		
+		Write(arq_func, func_t);
+        writeln('Registro gravado com sucesso.');
+		{Entrada do proximo funcionario}
+        prox:
+        write('Deseja inserir mais um registro? s/n: '); readln(r);
+        while(r <> 's') and (r <> 'S') and (r <> 'n') and (r <> 'N') do
+		begin
+            write('Resposta invalida. Digite novamente: '); read(r);
+        end;
+        if (r = 'n') or (r = 'N') then begin Close(arq_func); halt; end;
 		write('C¢digo do funcion rio: '); readln(func_t.cod);
-		end;
-
+		if func_t.cod = 9999 then begin Close(arq_func); halt; end;
+	end;
 end.
